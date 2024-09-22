@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,7 +20,16 @@ namespace Project_Structure
             var webApplicationBuilder = WebApplication.CreateBuilder();
 
             #region Configure Services Method in .NET 5
-            webApplicationBuilder.Services.AddControllersWithViews(); 
+
+            //webApplicationBuilder.Services.AddControllers(); // Register APIs required services (Controller Activation, Model binding, 
+
+            //MvcViewFeaturesMvcCoreBuilderExtensions.AddViews();
+
+            webApplicationBuilder.Services.AddControllersWithViews(); // Register MVC required services (Controller Activation, Model binding, 
+
+            //webApplicationBuilder.Services.AddRazorPages(); // Register Razor pages required services ( Model binding, 
+
+            //webApplicationBuilder.Services.AddMvc();
             #endregion
 
             var app = webApplicationBuilder.Build();
@@ -42,14 +52,34 @@ namespace Project_Structure
                 await context.Response.WriteAsync("Hello World!");
             });
 
+            // First type of segment: Static segment, you must write Hamda in url
             app.MapGet("/Hamda", async context =>
             {
                 await context.Response.WriteAsync("Hello Hamda!");
             });
+            // Second type of segment: Variable segment
+            //app.MapGet("/{id:int}", async context =>
+            //app.MapGet("/{id:alpha}", async context =>
+            //app.MapGet("/{id}", async context =>
+            //{
+            //    await context.Response.WriteAsync("Hello hazam!");
+            //});
+
+            app.MapGet("/xx{id:alpha}", async context =>
+            {
+                await context.Response.WriteAsync($"Id: {context.Request.RouteValues["id"]}");
+            });
 
             app.MapControllerRoute(
                 name: default,
-                pattern: "{controller}/{action}/{id?}"
+                //pattern: "{controller}/{action}/{id?}"
+                pattern: "{controller=Movies}/{action=Index}/{id:int?}"
+                //pattern: "{controller=Movies}/{action=Index}/{id:int?}/{name:alpha?}/{email:Regex()?}",
+                //constraints: new {id = new IntRouteConstraint()}
+            //pattern: "Hamda/{controller}/{action}/{id?}"
+            //pattern: "Hamda/xx{controller}/{action}/{id?}"
+            //pattern: "{action}/{controller}/{id?}"
+                //defaults: new {controller = "Movies", action = "Index"}
             ); 
             #endregion
 
